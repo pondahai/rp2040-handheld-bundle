@@ -124,8 +124,7 @@ python tools/make_thumb.py doom_cover.jpg --fit --drop-bg --bg FFFFFF -o DOOM.RA
 | `PicoApple2_standalone.uf2` | 重編 + merge | 跟進到 `d8e78a0`(選單整列 SPI 緩衝 + 檔名快取,捲動不再是 O(n)) |
 | `DOOM.uf2` | 未動 | 來源 repo 沒有新 commit,本來就是新跳板 |
 
-⚠️ **這批重編的檔案還沒有上機驗證。** 上一批是逐一實機跑過的,這批只有
-build 期的佈局檢查通過:
+✅ **這批重編的檔案已經上機驗證過。** build 期的佈局檢查如下:
 
 ```
 loader:     11,968 / 16,384 bytes (73%, 剩 4,416)
