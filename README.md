@@ -179,10 +179,10 @@ DOOM 從選單載入時要寫入約 1.97MB,**要等 30–45 秒**,畫面看起�
 
 | 專題 | Repo | Commit | 上一版 |
 |---|---|---|---|
-| 載入器 / 跳板 | `rp2040-retro-loader` | `10a276e` | `db5228e` |
-| DOOM | `rp2040-doom-ili9341` | `015a01d` | 同 |
-| InfoNES | `rp2040-ili9341-infones` | `b4b858e` | 同 |
-| PicoApple2 | `PicoApple2` | `d8e78a0` | `876b9be` |
+| 載入器 / 跳板 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) | [`10a276e`](https://github.com/pondahai/rp2040-retro-loader/commit/10a276e) | `db5228e` |
+| DOOM | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) | [`015a01d`](https://github.com/pondahai/rp2040-doom-ili9341/commit/015a01d) | 同 |
+| InfoNES | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) | [`b4b858e`](https://github.com/pondahai/rp2040-ili9341-infones/commit/b4b858e) | 同 |
+| PicoApple2 | [PicoApple2](https://github.com/pondahai/PicoApple2) | [`d8e78a0`](https://github.com/pondahai/PicoApple2/commit/d8e78a0) | `876b9be` |
 
 InfoNES 的工作區當時有未提交的 nvram / ramdisk 檔(`nvram_path.h`、
 `tools/nvram_save_test/`、`tools/ramdisk_fat12.h`),但都還沒被 build 引用,
