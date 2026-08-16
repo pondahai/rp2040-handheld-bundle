@@ -58,13 +58,13 @@ interface 可用 —— 一旦燒進去,沒有這個逃生口就只能靠實體 
 
 ### uf2/ — 韌體
 
-| 檔案 | 大小 | 說明 |
-|---|---|---|
-| `loader.uf2` | 24,064 B | **載入器主程式**。燒進板子,不是 SD 卡項目 |
-| `trampoline.uf2` | 6,144 B | 跳板。已經包在下面三個遊戲裡,單獨留著是給重新 merge 用的 |
-| `DOOM.uf2` | 4,174,336 B | DOOM(韌體 + 1.7MB 地圖檔) |
-| `infoNES_standalone.uf2` | 1,056,768 B | InfoNES(紅白機模擬器) |
-| `PicoApple2_standalone.uf2` | 401,408 B | PicoApple2(Apple II 模擬器) |
+| 檔案 | 大小 | 說明 | 來源 repo |
+|---|---|---|---|
+| `loader.uf2` | 24,064 B | **載入器主程式**。燒進板子,不是 SD 卡項目 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
+| `trampoline.uf2` | 6,144 B | 跳板。已經包在下面三個遊戲裡,單獨留著是給重新 merge 用的 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
+| `DOOM.uf2` | 4,174,336 B | DOOM(韌體 + 1.7MB 地圖檔) | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) |
+| `infoNES_standalone.uf2` | 1,056,768 B | InfoNES(紅白機模擬器) | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) |
+| `PicoApple2_standalone.uf2` | 401,408 B | PicoApple2(Apple II 模擬器) | [PicoApple2](https://github.com/pondahai/PicoApple2) |
 
 三個遊戲都是 **standalone 版**,意思是檔案最前面帶了跳板,所以**兩種用法都成立**:
 
