@@ -7,6 +7,8 @@ MAGC 掌機(RP2040 + ILI9341)的整套可燒錄成品:載入器主程式、三�
 **[rp2040-retro-handheld](https://github.com/pondahai/rp2040-retro-handheld)**
 (硬體 BOM、各韌體的介紹與致謝);本 repo 只負責收攏其中走載入器選單那一批的
 **可燒錄成品**。
+<img width="1600" height="2133" alt="IMG_4779" src="https://github.com/user-attachments/assets/046a2f55-c199-402a-b4e2-9455da406b3e" />
+
 
 集合日期: 2026-08-16(當日稍晚重編過一次,見第三節)
 
