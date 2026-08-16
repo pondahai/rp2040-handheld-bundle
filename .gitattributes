@@ -1,0 +1,5 @@
+# 封面是 96x96 RGB565 的裸資料,固定 18432 bytes。git 會把「碰巧沒有 NUL 的」
+# 那幾張誤判成文字檔 —— 這台的 core.autocrlf=true,一旦誤判,checkout 時每個
+# 0x0A 都會被換成 0D 0A,檔案長度變掉、圖整個歪掉。必須明講是二進位。
+*.RAW binary
+*.uf2 binary

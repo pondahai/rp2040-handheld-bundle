@@ -1,0 +1,3 @@
+# uf2 走 Releases,不進版控 —— 二進位檔每次重編都會變,塞進 git 只會讓
+# 歷史無限膨脹。要拿成品去 Releases 下載,對應的 tag 與 sha256 見 README。
+uf2/
