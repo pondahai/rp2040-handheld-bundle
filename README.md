@@ -37,8 +37,9 @@ cover-sources/  封面的來源圖(要重新轉封面時才需要)
 1. 板子進 BOOTSEL(拔電 → 按住 BOOTSEL → 插電),掛成 `RPI-RP2`
 2. 把 `uf2/loader.uf2` 拖進去 — **這一步只要做一次**
 3. SD 卡格式化成 FAT16 或 FAT32
-4. 把 `uf2/` 裡**三個遊戲的 uf2** 和 `covers/` 裡**三個 .RAW** 全部複製到
-   SD 卡**根目錄**(不支援子資料夾)
+4. 把 `uf2/` 裡**三個遊戲的 uf2** 和 `covers/` 裡對應的 `.RAW` 全部複製到
+   SD 卡**根目錄**(不支援子資料夾)。`RETRODICT.INO.RAW` 要等你自己編出字典的
+   uf2 之後才用得上,先放著不影響選單
 5. 開機 → 圖形選單 → 左右選 → A 或 START 執行
 
 ⚠️ `loader.uf2` 與 `trampoline.uf2` **不要**放進 SD 卡。它們是燒進板子的,
@@ -69,6 +70,7 @@ interface 可用 —— 一旦燒進去,沒有這個逃生口就只能靠實體 
 | `DOOM.uf2` | 4,174,336 B | DOOM(韌體 + 1.7MB 地圖檔) | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) |
 | `infoNES_standalone.uf2` | 1,056,768 B | InfoNES(紅白機模擬器) | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) |
 | `PicoApple2_standalone.uf2` | 401,408 B | PicoApple2(Apple II 模擬器) | [PicoApple2](https://github.com/pondahai/PicoApple2) |
+| `RetroDict.ino.uf2` | 216,320 B | 電子字典。**尚未收進 Releases**,見下方說明 | [rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) |
 
 三個遊戲都是 **standalone 版**,意思是檔案最前面帶了跳板,所以**兩種用法都成立**:
 
@@ -77,6 +79,14 @@ interface 可用 —— 一旦燒進去,沒有這個逃生口就只能靠實體 
 2. **直接拖進 `RPI-RP2`** — 不需要載入器也不需要 SD 卡,開機直接進該專題。
    會覆蓋掉載入器,要換回來就重燒 `loader.uf2`
 
+**字典的狀況不一樣。** `rp2040-retro-dict` 的 `build_offset.bat` 一次產出兩個檔:
+`RetroDict.ino.uf2`(216,320 B,給選單用,不夾跳板)與
+`RetroDict_standalone.uf2`(465,408 B,夾了跳板可直接 USB 燒)。數字取自該 repo 的
+HANDOVER,**本 repo 目前還沒收這兩個檔** —— 封面已經收了(見下節),uf2 要等下次
+重編時一起 merge 進 Releases,校驗碼也才補得上。在那之前請自行從字典 repo 編。
+另外字典還要 SD 卡上的 `/DICT/`(`EC.IDX`、`EC.DAT`、`ECC.IDX`、`FONT.BIN`,
+漢英另加 `CE.IDX`、`CE.DAT`),那是資料不是韌體,不走選單。
+
 ### covers/ — 選單封面
 
 | 檔案 | 對應的 uf2 |
@@ -84,6 +94,7 @@ interface 可用 —— 一旦燒進去,沒有這個逃生口就只能靠實體 
 | `DOOM.RAW` | `DOOM.uf2` |
 | `INFONES_STANDALONE.RAW` | `infoNES_standalone.uf2` |
 | `PICOAPPLE2_STANDALONE.RAW` | `PicoApple2_standalone.uf2` |
+| `RETRODICT.INO.RAW` | `RetroDict.ino.uf2` |
 
 全部是 96x96 RGB565 big-endian、**固定 18432 bytes、無標頭**。
 
@@ -96,7 +107,11 @@ interface 可用 —— 一旦燒進去,沒有這個逃生口就只能靠實體 
 
 ### cover-sources/ — 封面來源圖
 
-`doom_cover.jpg` / `infones_standalone.jpg` / `picoapple2_standalone.jpg`
+`doom_cover.jpg` / `infones_standalone.jpg` / `picoapple2_standalone.jpg` /
+`retrodict_icon_96.png`
+
+`retrodict_icon_96.png` 已經是 96x96,是字典 repo 轉封面時的中間產物,原圖在
+[rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) 的 `assets/`。
 
 只有要重新轉封面時才需要。轉換指令(在載入器 repo 底下執行):
 
@@ -212,4 +227,5 @@ uf2/PicoApple2_standalone.uf2     1a1da3896ea8dee6
 covers/DOOM.RAW                   c4e8be3cd258d37a
 covers/INFONES_STANDALONE.RAW     9f9d1fc3b15bdd16
 covers/PICOAPPLE2_STANDALONE.RAW  3f6c27d4fe5af0c3
+covers/RETRODICT.INO.RAW          2c1ca71602ced177
 ```
