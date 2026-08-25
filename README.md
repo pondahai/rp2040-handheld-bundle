@@ -66,7 +66,7 @@ interface 可用 —— 一旦燒進去,沒有這個逃生口就只能靠實體 
 
 | 檔案 | 大小 | 說明 | 來源 repo |
 |---|---|---|---|
-| `loader.uf2` | 24,064 B | **載入器主程式**。燒進板子,不是 SD 卡項目 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
+| `loader.uf2` | 25,088 B | **載入器主程式**。燒進板子,不是 SD 卡項目 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
 | `trampoline.uf2` | 6,144 B | 跳板。已經包在下面三個遊戲裡,單獨留著是給重新 merge 用的 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
 | `DOOM.uf2` | 4,174,336 B | DOOM(韌體 + 1.7MB 地圖檔) | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) |
 | `infoNES_standalone.uf2` | 1,056,768 B | InfoNES(紅白機模擬器) | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) |
@@ -146,13 +146,18 @@ python tools/make_thumb.py doom_cover.jpg --fit --drop-bg --bg FFFFFF -o DOOM.RA
 |---|---|---|
 | `RetroDict.ino.uf2` | 新編 | `build_offset.bat`,佈局檢查通過:image `0x10004000..0x10039100`(217,344 B),SP=`0x20042000` Reset=`0x100040e3` |
 | `RetroDict_standalone.uf2` | 新編 + merge | 913 blocks(跳板 12 + 本體 849 + 填充 52) |
+| `loader.uf2` | 重編 | 跟進到 `128b79a`,選單加 logo 背景牆;25,088 B,12,424 / 16,384 bytes (75%) |
+| `trampoline.uf2` | 未動 | 內容與 2026-08-16 那份逐位元組相同(`19d1e132634b49f8`) |
 
 ⚠️ 偏移錯了**不會**編譯失敗,只會在實機上黑畫面,症狀跟沒燒進去一樣 ——
 所以 `check_flash_layout.py` 那關一定要過才算數。
 
-⚠️ 載入器 repo 在 `128b79a` 之後已經有新 commit,重編出來的 `loader.uf2`
-(25,088 B)與 Releases 裡那份 24,064 B 已經不同。這次**沒有**更新 `loader.uf2`,
-Releases 裡仍是 2026-08-16 那份;下次要一起重編再說。
+`loader.uf2` 也一併重編上架,跟進到 `128b79a`(選單多了 1bpp logo 背景牆)。
+24,064 B → 25,088 B,`12,424 / 16,384 bytes (75%, 剩 3,960)`,仍在 16KB 內。
+跳板未變,所以三個 standalone 不必重新 merge。
+
+⚠️ **這批(字典兩支 + 新載入器)還沒上機驗證過**,不像 2026-08-16 那批。
+要退回舊載入器就重新編 `10a276e`。
 
 ### 2026-08-16 重編紀錄
 
@@ -223,7 +228,8 @@ DOOM 從選單載入時要寫入約 1.97MB,**要等 30–45 秒**,畫面看起�
 
 | 專題 | Repo | Commit | 上一版 |
 |---|---|---|---|
-| 載入器 / 跳板 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) | [`10a276e`](https://github.com/pondahai/rp2040-retro-loader/commit/10a276e) | `db5228e` |
+| 載入器(2026-08-25) | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) | [`128b79a`](https://github.com/pondahai/rp2040-retro-loader/commit/128b79a) | `10a276e` |
+| 跳板 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) | [`10a276e`](https://github.com/pondahai/rp2040-retro-loader/commit/10a276e) | `db5228e` |
 | DOOM | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) | [`015a01d`](https://github.com/pondahai/rp2040-doom-ili9341/commit/015a01d) | 同 |
 | InfoNES | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) | [`b4b858e`](https://github.com/pondahai/rp2040-ili9341-infones/commit/b4b858e) | 同 |
 | PicoApple2 | [PicoApple2](https://github.com/pondahai/PicoApple2) | [`d8e78a0`](https://github.com/pondahai/PicoApple2/commit/d8e78a0) | `876b9be` |
@@ -245,7 +251,7 @@ InfoNES 的工作區當時有未提交的 nvram / ramdisk 檔(`nvram_path.h`、
 ## 六、校驗碼(sha256 前 16 碼)
 
 ```
-uf2/loader.uf2                    2b08ad4e9454a29b
+uf2/loader.uf2                    74b643f7be2be8ce
 uf2/trampoline.uf2                19d1e132634b49f8
 uf2/DOOM.uf2                      0f86b7142a523c4b
 uf2/infoNES_standalone.uf2        6cea111ccc6c564a
