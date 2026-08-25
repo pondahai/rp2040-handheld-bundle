@@ -84,7 +84,9 @@ interface 可用 —— 一旦燒進去,沒有這個逃生口就只能靠實體 
 **字典的狀況不一樣。** `rp2040-retro-dict` 的 `build_offset.bat` 一次產出兩個檔,
 兩個都已收進 Releases:`RetroDict.ino.uf2`(434,688 B,給選單用,不夾跳板,
 **不能單獨拖進 `RPI-RP2`**,前 16KB 是空的)與 `RetroDict_standalone.uf2`
-(467,456 B,夾了跳板可直接 USB 燒)。以上大小是實測值,不是抄 HANDOVER 的。
+(467,456 B,夾了跳板可直接 USB 燒)。以上是實測的**檔案**大小 —— 先前這裡標的
+216,320 / 465,408 是誤讀字典 repo HANDOVER 的 flash image 大小,UF2 檔案因為
+一個 512B block 只裝 256B 酬載,大約是 image 的兩倍。
 封面只有 `RETRODICT.INO.RAW` 一份,對應走選單的那個檔;standalone 版是 USB 用的,
 不必放 SD 卡。
 另外字典還要 SD 卡上的 `/DICT/`(`EC.IDX`、`EC.DAT`、`ECC.IDX`、`FONT.BIN`,
