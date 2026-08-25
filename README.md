@@ -1,6 +1,6 @@
 # RP2040 掌機 — 成品集合
 
-MAGC 掌機(RP2040 + ILI9341)的整套可燒錄成品:載入器主程式、三個專題的
+MAGC 掌機(RP2040 + ILI9341)的整套可燒錄成品:載入器主程式、四個專題的
 韌體、以及選單封面。
 
 整個掌機生態系的總綱與入口頁在
@@ -11,7 +11,7 @@ MAGC 掌機(RP2040 + ILI9341)的整套可燒錄成品:載入器主程式、三�
 <img width="1600" height="1568" alt="IMG_4780" src="https://github.com/user-attachments/assets/78bd0051-8eed-4c60-a15b-a170771f0b97" />
 
 
-集合日期: 2026-08-16(當日稍晚重編過一次,見第三節)
+集合日期: 2026-08-16(當日稍晚重編過一次);字典於 2026-08-25 補收。見第三節
 
 ---
 
@@ -25,7 +25,7 @@ cover-sources/  封面的來源圖(要重新轉封面時才需要)
 
 ⚠️ **`uf2/` 沒有進版控。** 二進位檔每次重編都全變,塞進 git 只會讓歷史膨脹。
 成品掛在 [Releases](https://github.com/pondahai/rp2040-handheld-bundle/releases),
-五個 uf2 是各自獨立的檔案(不是壓縮包),下載後放進 `uf2/` 即可,
+七個 uf2 是各自獨立的檔案(不是壓縮包),下載後放進 `uf2/` 即可,
 校驗碼見第六節。
 
 ---
@@ -37,9 +37,10 @@ cover-sources/  封面的來源圖(要重新轉封面時才需要)
 1. 板子進 BOOTSEL(拔電 → 按住 BOOTSEL → 插電),掛成 `RPI-RP2`
 2. 把 `uf2/loader.uf2` 拖進去 — **這一步只要做一次**
 3. SD 卡格式化成 FAT16 或 FAT32
-4. 把 `uf2/` 裡**三個遊戲的 uf2** 和 `covers/` 裡對應的 `.RAW` 全部複製到
-   SD 卡**根目錄**(不支援子資料夾)。`RETRODICT.INO.RAW` 要等你自己編出字典的
-   uf2 之後才用得上,先放著不影響選單
+4. 把 `uf2/` 裡**四個專題的 uf2**(`DOOM.uf2`、`infoNES_standalone.uf2`、
+   `PicoApple2_standalone.uf2`、`RetroDict.ino.uf2`)和 `covers/` 裡對應的
+   `.RAW` 全部複製到 SD 卡**根目錄**(不支援子資料夾)。字典還要多放一個
+   `/DICT/` 資料夾,見第二節
 5. 開機 → 圖形選單 → 左右選 → A 或 START 執行
 
 ⚠️ `loader.uf2` 與 `trampoline.uf2` **不要**放進 SD 卡。它們是燒進板子的,
@@ -70,7 +71,8 @@ interface 可用 —— 一旦燒進去,沒有這個逃生口就只能靠實體 
 | `DOOM.uf2` | 4,174,336 B | DOOM(韌體 + 1.7MB 地圖檔) | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) |
 | `infoNES_standalone.uf2` | 1,056,768 B | InfoNES(紅白機模擬器) | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) |
 | `PicoApple2_standalone.uf2` | 401,408 B | PicoApple2(Apple II 模擬器) | [PicoApple2](https://github.com/pondahai/PicoApple2) |
-| `RetroDict.ino.uf2` | 216,320 B | 電子字典。**尚未收進 Releases**,見下方說明 | [rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) |
+| `RetroDict.ino.uf2` | 434,688 B | 電子字典。給選單用,不夾跳板 | [rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) |
+| `RetroDict_standalone.uf2` | 467,456 B | 電子字典 standalone,夾了跳板可直接 USB 燒 | [rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) |
 
 三個遊戲都是 **standalone 版**,意思是檔案最前面帶了跳板,所以**兩種用法都成立**:
 
@@ -79,11 +81,12 @@ interface 可用 —— 一旦燒進去,沒有這個逃生口就只能靠實體 
 2. **直接拖進 `RPI-RP2`** — 不需要載入器也不需要 SD 卡,開機直接進該專題。
    會覆蓋掉載入器,要換回來就重燒 `loader.uf2`
 
-**字典的狀況不一樣。** `rp2040-retro-dict` 的 `build_offset.bat` 一次產出兩個檔:
-`RetroDict.ino.uf2`(216,320 B,給選單用,不夾跳板)與
-`RetroDict_standalone.uf2`(465,408 B,夾了跳板可直接 USB 燒)。數字取自該 repo 的
-HANDOVER,**本 repo 目前還沒收這兩個檔** —— 封面已經收了(見下節),uf2 要等下次
-重編時一起 merge 進 Releases,校驗碼也才補得上。在那之前請自行從字典 repo 編。
+**字典的狀況不一樣。** `rp2040-retro-dict` 的 `build_offset.bat` 一次產出兩個檔,
+兩個都已收進 Releases:`RetroDict.ino.uf2`(434,688 B,給選單用,不夾跳板,
+**不能單獨拖進 `RPI-RP2`**,前 16KB 是空的)與 `RetroDict_standalone.uf2`
+(467,456 B,夾了跳板可直接 USB 燒)。以上大小是實測值,不是抄 HANDOVER 的。
+封面只有 `RETRODICT.INO.RAW` 一份,對應走選單的那個檔;standalone 版是 USB 用的,
+不必放 SD 卡。
 另外字典還要 SD 卡上的 `/DICT/`(`EC.IDX`、`EC.DAT`、`ECC.IDX`、`FONT.BIN`,
 漢英另加 `CE.IDX`、`CE.DAT`),那是資料不是韌體,不走選單。
 
@@ -129,7 +132,27 @@ python tools/make_thumb.py doom_cover.jpg --fit --drop-bg --bg FFFFFF -o DOOM.RA
 
 ---
 
-## 三、2026-08-16 重編紀錄
+## 三、重編紀錄
+
+### 2026-08-25 — 補收字典
+
+字典的兩個 uf2 補進 Releases(掛在同一個 `v2026.08.16` tag 底下,與其他五個並列)。
+編譯順序照樣是先載入器後專題,夾到的跳板與其他三個 standalone 同一份
+(`19d1e132634b49f8`,6,144 B,未變)。
+
+| 檔案 | 這次動作 | 說明 |
+|---|---|---|
+| `RetroDict.ino.uf2` | 新編 | `build_offset.bat`,佈局檢查通過:image `0x10004000..0x10039100`(217,344 B),SP=`0x20042000` Reset=`0x100040e3` |
+| `RetroDict_standalone.uf2` | 新編 + merge | 913 blocks(跳板 12 + 本體 849 + 填充 52) |
+
+⚠️ 偏移錯了**不會**編譯失敗,只會在實機上黑畫面,症狀跟沒燒進去一樣 ——
+所以 `check_flash_layout.py` 那關一定要過才算數。
+
+⚠️ 載入器 repo 在 `128b79a` 之後已經有新 commit,重編出來的 `loader.uf2`
+(25,088 B)與 Releases 裡那份 24,064 B 已經不同。這次**沒有**更新 `loader.uf2`,
+Releases 裡仍是 2026-08-16 那份;下次要一起重編再說。
+
+### 2026-08-16 重編紀錄
 
 原本這一節記的是「兩份舊韌體夾的是舊跳板」。**已經解決** —— 五個 uf2 裡有
 四個在 2026-08-16 中午重新編譯/merge 過,三個 standalone 現在夾的都是同一份
@@ -202,6 +225,7 @@ DOOM 從選單載入時要寫入約 1.97MB,**要等 30–45 秒**,畫面看起�
 | DOOM | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) | [`015a01d`](https://github.com/pondahai/rp2040-doom-ili9341/commit/015a01d) | 同 |
 | InfoNES | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) | [`b4b858e`](https://github.com/pondahai/rp2040-ili9341-infones/commit/b4b858e) | 同 |
 | PicoApple2 | [PicoApple2](https://github.com/pondahai/PicoApple2) | [`d8e78a0`](https://github.com/pondahai/PicoApple2/commit/d8e78a0) | `876b9be` |
+| 字典(2026-08-25) | [rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) | [`9adf319`](https://github.com/pondahai/rp2040-retro-dict/commit/9adf319) | 新收 |
 
 InfoNES 的工作區當時有未提交的 nvram / ramdisk 檔(`nvram_path.h`、
 `tools/nvram_save_test/`、`tools/ramdisk_fat12.h`),但都還沒被 build 引用,
@@ -224,6 +248,8 @@ uf2/trampoline.uf2                19d1e132634b49f8
 uf2/DOOM.uf2                      0f86b7142a523c4b
 uf2/infoNES_standalone.uf2        6cea111ccc6c564a
 uf2/PicoApple2_standalone.uf2     1a1da3896ea8dee6
+uf2/RetroDict.ino.uf2             3ea5227878584827
+uf2/RetroDict_standalone.uf2      312f1894d1686348
 covers/DOOM.RAW                   c4e8be3cd258d37a
 covers/INFONES_STANDALONE.RAW     9f9d1fc3b15bdd16
 covers/PICOAPPLE2_STANDALONE.RAW  3f6c27d4fe5af0c3
