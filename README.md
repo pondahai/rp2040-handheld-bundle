@@ -153,7 +153,7 @@ SDR 的兩個 uf2 掛在新的 tag `v2026.10.10`(其他七個仍在 `v2026.08.16
 |---|---|---|
 | `RetroSDR.ino.uf2` | 新編 | `build_offset.bat`,佈局檢查通過:image `0x10004000..0x10024200`(131,584 B),SP=`0x20042000` Reset=`0x100040e3` |
 | `RetroSDR_standalone.uf2` | 新編 + merge | 578 blocks。夾的跳板與 `trampoline.uf2`(`19d1e132634b49f8`)逐位元組相同,前 16KB 與 `RetroDict_standalone.uf2` 相同 |
-| `covers/RETROSDR.INO.RAW` | 新增 | 米色短波收音機,RGB565 後 102 色 |
+| `covers/RETROSDR.INO.RAW` | 新增 | 米色短波收音機,刻度窗是色塊瀑布圖,RGB565 後 89 色 |
 
 ✅ **已上機驗證**:用 `v2026.08.16` 的 `loader.uf2`,選單看得到封面、從選單啟動正常。
 (standalone 版本體與選單版相同,USB 直燒的路徑在開發期間一直在用。)
@@ -287,5 +287,5 @@ covers/DOOM.RAW                   c4e8be3cd258d37a
 covers/INFONES_STANDALONE.RAW     9f9d1fc3b15bdd16
 covers/PICOAPPLE2_STANDALONE.RAW  3f6c27d4fe5af0c3
 covers/RETRODICT.INO.RAW          2c1ca71602ced177
-covers/RETROSDR.INO.RAW           e7f9b897a3f175e6
+covers/RETROSDR.INO.RAW           306e0ef7a60938cc
 ```
