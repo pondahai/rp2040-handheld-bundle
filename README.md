@@ -37,10 +37,12 @@ cover-sources/  封面的來源圖(要重新轉封面時才需要)
 1. 板子進 BOOTSEL(拔電 → 按住 BOOTSEL → 插電),掛成 `RPI-RP2`
 2. 把 `uf2/loader.uf2` 拖進去 — **這一步只要做一次**
 3. SD 卡格式化成 FAT16 或 FAT32
-4. 把 `uf2/` 裡**五個專題的 uf2**(`DOOM.uf2`、`infoNES_standalone.uf2`、
-   `PicoApple2_standalone.uf2`、`RetroDict.ino.uf2`、`RetroSDR.ino.uf2`)、**SD 掛載工具 `SDMOUNT.UF2`**,
+4. 把**五個專題的 uf2**(`DOOM.uf2`、`infoNES.uf2`、`PicoApple2.ino.uf2`、
+   `RetroDict.ino.uf2`、`RetroSDR.ino.uf2`)、**SD 掛載工具 `SDMOUNT.UF2`**,
    和 `covers/` 裡對應的 `.RAW` 全部複製到 SD 卡**根目錄**(不支援子資料夾)。字典還要多放一個
-   `/DICT/` 資料夾,見第二節
+   `/DICT/` 資料夾,見第二節。
+   ⚠️ 目前 Releases 裡 InfoNES 與 PicoApple2 只有 `infoNES_standalone.uf2` / `PicoApple2_standalone.uf2`,
+   複製到 SD 卡時請**改名**成 `infoNES.uf2` / `PicoApple2.ino.uf2`,才會配上封面(內容不用換,見第二節)
 5. 開機 → 圖形選單 → 左右選 → A 或 START 執行
 
 ### 之後加新 APP:不用再拔卡
@@ -57,7 +59,7 @@ SDMOUNT、等 SD 卡以隨身碟出現、複製(同名 `.RAW` 封面一併帶上
 要遠端啟動 SD 卡上的某個 APP(掌機同樣要停在選單):
 
 ```bash
-python retro_sync.py run INFONES_STANDALONE     # 檔名不分大小寫,可省略 .UF2
+python retro_sync.py run INFONES                # 檔名不分大小寫,可省略 .UF2
 python retro_sync.py push RetroFoo.uf2 --run    # push 完直接啟動
 ```
 
@@ -108,6 +110,11 @@ SELECT 那項很重要:載入器的 USB 只有一個自訂的 HID 指令通道(�
 2. **直接拖進 `RPI-RP2`** — 不需要載入器也不需要 SD 卡,開機直接進該專題。
    會覆蓋掉載入器,要換回來就重燒 `loader.uf2`
 
+**SD 卡上的命名統一用選單版的名字**:InfoNES 放成 `infoNES.uf2`、PicoApple2 放成
+`PicoApple2.ino.uf2`(跟各專題 `build_offset` 產出的選單版同名),封面也照這個名字。
+`_standalone` 的名字留給 USB 直燒用,不放 SD 卡。把 standalone 檔改名後放上去沒問題,
+跳板會被載入器丟掉;但反過來**不能**把選單版改名成 `_standalone` 拿去 USB 燒,前 16KB 是空的。
+
 **字典的狀況不一樣。** `rp2040-retro-dict` 的 `build_offset.bat` 一次產出兩個檔,
 兩個都已收進 Releases:`RetroDict.ino.uf2`(434,688 B,給選單用,不夾跳板,
 **不能單獨拖進 `RPI-RP2`**,前 16KB 是空的)與 `RetroDict_standalone.uf2`
@@ -127,8 +134,8 @@ SDR 不需要額外資料;錄音、預設清單、JJY 記錄檔會自己寫到 S
 | 檔案 | 對應的 uf2 |
 |---|---|
 | `DOOM.RAW` | `DOOM.uf2` |
-| `INFONES_STANDALONE.RAW` | `infoNES_standalone.uf2` |
-| `PICOAPPLE2_STANDALONE.RAW` | `PicoApple2_standalone.uf2` |
+| `INFONES.RAW` | `infoNES.uf2` |
+| `PICOAPPLE2.INO.RAW` | `PicoApple2.ino.uf2` |
 | `RETRODICT.INO.RAW` | `RetroDict.ino.uf2` |
 | `RETROSDR.INO.RAW` | `RetroSDR.ino.uf2` |
 | `SDMOUNT.RAW` | `SDMOUNT.UF2` |
@@ -136,11 +143,10 @@ SDR 不需要額外資料;錄音、預設清單、JJY 記錄檔會自己寫到 S
 全部是 96x96 RGB565 big-endian、**固定 18432 bytes、無標頭**。
 
 檔名(去掉副檔名)必須跟 uf2 一致才會被認出來。FAT 不分大小寫,所以
-`INFONES_STANDALONE.RAW` 配 `infoNES_standalone.uf2` 是對得上的。
+`INFONES.RAW` 配 `infoNES.uf2` 是對得上的。
 沒有封面的項目顯示成灰色色塊,照樣能選。
 
 ⚠️ 檔名含副檔名**不要超過 26 字元**,那是 fatlite 的 LFN 拼裝上限。
-`PICOAPPLE2_STANDALONE.RAW` 是 25 字元,已經很接近了。
 
 ### cover-sources/ — 封面來源圖
 
@@ -359,8 +365,8 @@ uf2/RetroSDR_standalone.uf2       468b3ee3b74c6dde
 uf2/SDMOUNT.UF2                   e6b290bb1a512531
 uf2/SDMOUNT_standalone.uf2        6b629bb61530f645
 covers/DOOM.RAW                   c4e8be3cd258d37a
-covers/INFONES_STANDALONE.RAW     9f9d1fc3b15bdd16
-covers/PICOAPPLE2_STANDALONE.RAW  3f6c27d4fe5af0c3
+covers/INFONES.RAW                9f9d1fc3b15bdd16
+covers/PICOAPPLE2.INO.RAW         3f6c27d4fe5af0c3
 covers/RETRODICT.INO.RAW          a192c13a051152cc
 covers/RETROSDR.INO.RAW           1160d8c23cdef6ff
 covers/SDMOUNT.RAW                a9990ea5c4e30549
