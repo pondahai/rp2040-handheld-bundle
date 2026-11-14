@@ -1,7 +1,7 @@
 # RP2040 掌機 — 成品集合
 
 MAGC 掌機(RP2040 + ILI9341)的整套可燒錄成品:載入器主程式、五個專題的
-韌體、以及選單封面。
+韌體、SD 掛載工具、以及選單封面。
 
 整個掌機生態系的總綱與入口頁在
 **[rp2040-retro-handheld](https://github.com/pondahai/rp2040-retro-handheld)**
@@ -11,7 +11,7 @@ MAGC 掌機(RP2040 + ILI9341)的整套可燒錄成品:載入器主程式、五�
 <img width="1600" height="1568" alt="IMG_4780" src="https://github.com/user-attachments/assets/78bd0051-8eed-4c60-a15b-a170771f0b97" />
 
 
-集合日期: 2026-08-16(當日稍晚重編過一次);字典於 2026-08-25 補收;SDR 收音機於 2026-10-10 補收。見第三節
+集合日期: 2026-08-16(當日稍晚重編過一次);字典於 2026-08-25 補收;SDR 收音機於 2026-10-10 補收;2026-11-14 整批重編並補收 SD 掛載工具。見第三節
 
 ---
 
@@ -25,7 +25,7 @@ cover-sources/  封面的來源圖(要重新轉封面時才需要)
 
 ⚠️ **`uf2/` 沒有進版控。** 二進位檔每次重編都全變,塞進 git 只會讓歷史膨脹。
 成品掛在 [Releases](https://github.com/pondahai/rp2040-handheld-bundle/releases),
-九個 uf2 是各自獨立的檔案(不是壓縮包),下載後放進 `uf2/` 即可,
+十二個 uf2 是各自獨立的檔案(不是壓縮包),全部掛在最新的 `v2026.11.14`,下載後放進 `uf2/` 即可,
 校驗碼見第六節。
 
 ---
@@ -38,10 +38,23 @@ cover-sources/  封面的來源圖(要重新轉封面時才需要)
 2. 把 `uf2/loader.uf2` 拖進去 — **這一步只要做一次**
 3. SD 卡格式化成 FAT16 或 FAT32
 4. 把 `uf2/` 裡**五個專題的 uf2**(`DOOM.uf2`、`infoNES_standalone.uf2`、
-   `PicoApple2_standalone.uf2`、`RetroDict.ino.uf2`、`RetroSDR.ino.uf2`)和 `covers/` 裡對應的
-   `.RAW` 全部複製到 SD 卡**根目錄**(不支援子資料夾)。字典還要多放一個
+   `PicoApple2_standalone.uf2`、`RetroDict.ino.uf2`、`RetroSDR.ino.uf2`)、**SD 掛載工具 `SDMOUNT.UF2`**,
+   和 `covers/` 裡對應的 `.RAW` 全部複製到 SD 卡**根目錄**(不支援子資料夾)。字典還要多放一個
    `/DICT/` 資料夾,見第二節
 5. 開機 → 圖形選單 → 左右選 → A 或 START 執行
+
+### 之後加新 APP:不用再拔卡
+
+有了 `SDMOUNT.UF2`,之後換檔案都不必拔 SD 卡。掌機停在選單、USB 接電腦:
+
+```bash
+pip install pyserial hidapi
+python retro_sync.py push RetroFoo.uf2
+```
+
+`retro_sync.py` 在 [rp2040-retro-sdmount](https://github.com/pondahai/rp2040-retro-sdmount) 的 `host/`。它會叫載入器啟動
+SDMOUNT、等 SD 卡以隨身碟出現、複製(同名 `.RAW` 封面一併帶上)、退出,再讓掌機回選單。
+也可以手動:選單選 SDMOUNT → 電腦上複製 → 退出磁碟 → 掌機按 START。
 
 ⚠️ `loader.uf2` 與 `trampoline.uf2` **不要**放進 SD 卡。它們是燒進板子的,
 不是選單項目。
@@ -54,9 +67,10 @@ cover-sources/  封面的來源圖(要重新轉封面時才需要)
 | A / START | 燒錄並執行 |
 | B | 重新掃描 SD 卡 |
 | **開機時按住 SELECT** | **直接進 BOOTSEL(逃生口)** |
+| 開機時按住 B | 強制顯示選單(某個專題當機被 watchdog 一直重啟時用) |
 
-最後一項很重要:載入器為了省空間把 USB 關掉了,所以 `picotool` 沒有 reset
-interface 可用 —— 一旦燒進去,沒有這個逃生口就只能靠實體 BOOTSEL 按鈕。
+SELECT 那項很重要:載入器的 USB 只有一個自訂的 HID 指令通道(給 `retro_sync.py` 用),
+沒有 `picotool` 的 reset interface —— 一旦燒進去,沒有這個逃生口就只能靠實體 BOOTSEL 按鈕。
 
 ---
 
@@ -66,15 +80,17 @@ interface 可用 —— 一旦燒進去,沒有這個逃生口就只能靠實體 
 
 | 檔案 | 大小 | 說明 | 來源 repo |
 |---|---|---|---|
-| `loader.uf2` | 25,088 B | **載入器主程式**。燒進板子,不是 SD 卡項目 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
+| `loader.uf2` | 27,648 B | **載入器主程式**。燒進板子,不是 SD 卡項目。2026-11-14 起選單期間有 USB 指令通道 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
 | `trampoline.uf2` | 6,144 B | 跳板。已經包在下面三個遊戲裡,單獨留著是給重新 merge 用的 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
 | `DOOM.uf2` | 4,174,336 B | DOOM(韌體 + 1.7MB 地圖檔) | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) |
 | `infoNES_standalone.uf2` | 1,056,768 B | InfoNES(紅白機模擬器) | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) |
-| `PicoApple2_standalone.uf2` | 401,408 B | PicoApple2(Apple II 模擬器) | [PicoApple2](https://github.com/pondahai/PicoApple2) |
-| `RetroDict.ino.uf2` | 434,688 B | 電子字典。給選單用,不夾跳板 | [rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) |
-| `RetroDict_standalone.uf2` | 467,456 B | 電子字典 standalone,夾了跳板可直接 USB 燒 | [rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) |
-| `RetroSDR.ino.uf2` | 263,168 B | LF 直接取樣 SDR 收音機(0–250 kHz)。給選單用,不夾跳板 | [rp2040-retro-sdr](https://github.com/pondahai/rp2040-retro-sdr) |
-| `RetroSDR_standalone.uf2` | 295,936 B | SDR standalone,夾了跳板可直接 USB 燒 | [rp2040-retro-sdr](https://github.com/pondahai/rp2040-retro-sdr) |
+| `PicoApple2_standalone.uf2` | 414,720 B | PicoApple2(Apple II 模擬器) | [PicoApple2](https://github.com/pondahai/PicoApple2) |
+| `RetroDict.ino.uf2` | 437,248 B | 電子字典。給選單用,不夾跳板 | [rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) |
+| `RetroDict_standalone.uf2` | 470,016 B | 電子字典 standalone,夾了跳板可直接 USB 燒 | [rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) |
+| `RetroSDR.ino.uf2` | 273,920 B | LF 直接取樣 SDR 收音機(0–250 kHz)。給選單用,不夾跳板 | [rp2040-retro-sdr](https://github.com/pondahai/rp2040-retro-sdr) |
+| `RetroSDR_standalone.uf2` | 306,688 B | SDR standalone,夾了跳板可直接 USB 燒 | [rp2040-retro-sdr](https://github.com/pondahai/rp2040-retro-sdr) |
+| `SDMOUNT.UF2` | 84,480 B | **SD 掛載工具**:把 SD 卡變成 USB 隨身碟。給選單用,不夾跳板 | [rp2040-retro-sdmount](https://github.com/pondahai/rp2040-retro-sdmount) |
+| `SDMOUNT_standalone.uf2` | 117,248 B | SD 掛載工具 standalone,夾了跳板可直接 USB 燒 | [rp2040-retro-sdmount](https://github.com/pondahai/rp2040-retro-sdmount) |
 
 三個遊戲都是 **standalone 版**,意思是檔案最前面帶了跳板,所以**兩種用法都成立**:
 
@@ -106,6 +122,7 @@ SDR 不需要額外資料;錄音、預設清單、JJY 記錄檔會自己寫到 S
 | `PICOAPPLE2_STANDALONE.RAW` | `PicoApple2_standalone.uf2` |
 | `RETRODICT.INO.RAW` | `RetroDict.ino.uf2` |
 | `RETROSDR.INO.RAW` | `RetroSDR.ino.uf2` |
+| `SDMOUNT.RAW` | `SDMOUNT.UF2` |
 
 全部是 96x96 RGB565 big-endian、**固定 18432 bytes、無標頭**。
 
@@ -119,7 +136,9 @@ SDR 不需要額外資料;錄音、預設清單、JJY 記錄檔會自己寫到 S
 ### cover-sources/ — 封面來源圖
 
 `doom_cover.jpg` / `infones_standalone.jpg` / `picoapple2_standalone.jpg` /
-`retrodict_icon_96.png` / `retrosdr_cover.png`
+`retrodict_icon_96.png` / `retrosdr_cover.png` / `SDMOUNT.png`
+
+`SDMOUNT.png` 是 96x96 原圖,由 sdmount repo 的 `tools/make_icon.py` 程式產生,`.RAW` 也是同一支腳本輸出的。
 
 `retrosdr_cover.png` 是 96x96 的原圖,由 SDR repo 的 `tools/make_cover.py`
 程式產生(不是轉照片),`.RAW` 也是同一支腳本直接輸出的,重做就重跑那支。
@@ -144,6 +163,35 @@ python tools/make_thumb.py doom_cover.jpg --fit --drop-bg --bg FFFFFF -o DOOM.RA
 ---
 
 ## 三、重編紀錄
+
+### 2026-11-14 — 整批重編、補收 SD 掛載工具
+
+新 tag **`v2026.11.14`**,這次把**全部 12 個 uf2 都掛上去**(含未重編的 DOOM 與跳板),
+不必再跨好幾個 tag 找檔案。舊 tag 保留不動。
+
+| 檔案 | 這次動作 | 說明 |
+|---|---|---|
+| `loader.uf2` | **重編(必要更新)** | 跟進到 `c481604`。① 專題可要求「重置後回選單」(`RETRO_MSG_SHOW_MENU`);② 顯示選單時清 `scratch[4]`;③ 選單期間的 USB HID 指令通道。13,768 / 16,384 bytes (84%) |
+| `SDMOUNT.UF2` / `_standalone` | **新增** | SD 掛載工具(MSC + CDC),`b6eb79d`。佈局:image `0x10004000..`,`app_present()` 通過 |
+| `infoNES_standalone.uf2` | 重編 + merge | `cbd200a`:改用 `watchdog_enable_caused_reboot()`,修正「從選單進 infoNES 卻直接跑上次的遊戲」 |
+| `RetroDict.*` | 重編 + merge | `5b3f148`:鍵盤接線預設改成現行版(QH 共用 GPIO 15、CLOCK = LCD D/C GPIO 20) |
+| `RetroSDR.*` | 重編 + merge | `53bffe8`:同上,另含 `ADC_ON_GP27=1` |
+| `PicoApple2_standalone.uf2` | 重編 + merge | `1d61443`:同上 |
+| `trampoline.uf2` | 未動 | `19d1e132634b49f8`,所有 standalone 夾的都是這份(已逐位元組比對) |
+| `DOOM.uf2` | 未動 | 沿用 2026-08-16 那份(`0f86b7142a523c4b`)。DOOM 用的是遊戲按鍵,不受鍵盤改線影響 |
+
+⚠️ **鍵盤接線改版**:字典、SDR、PicoApple2 這批只認**現行接線**(見
+[rp2040-retro-handheld docs/HARDWARE.md §2.2](https://github.com/pondahai/rp2040-retro-handheld/blob/main/docs/HARDWARE.md))。
+舊接線的機器請繼續用 `v2026.08.16` / `v2026.10.10` 的版本,或自行以開關 =0 重編。
+
+⚠️ **SDMOUNT 需要新載入器**。舊載入器上它能掛載,但 START / `done` 會重新進入 SDMOUNT 而不是回選單,
+`retro_sync.py` 也找不到停在選單的掌機。
+
+✅ **已上機驗證**:載入器(含 USB 指令通道)、SDMOUNT 全流程(`retro_sync.py push`)、infoNES 選單行為、
+字典 / SDR / PicoApple2 的現行接線鍵盤。
+
+編譯環境:載入器、infoNES、SDMOUNT 用 pico-sdk 2.2.0 + Arm GNU Toolchain 14.2.Rel1;
+字典、SDR、PicoApple2 用 arduino-pico 5.6.1。
 
 ### 2026-10-10 — 補收 SDR 收音機
 
@@ -246,17 +294,18 @@ DOOM 從選單載入時要寫入約 1.97MB,**要等 30–45 秒**,畫面看起�
 
 ## 五、出處
 
-重編當下各 repo 的 commit(2026-08-16 中午):
+`v2026.11.14` 各檔案對應的 commit:
 
 | 專題 | Repo | Commit | 上一版 |
 |---|---|---|---|
-| 載入器(2026-08-25) | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) | [`128b79a`](https://github.com/pondahai/rp2040-retro-loader/commit/128b79a) | `10a276e` |
-| 跳板 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) | [`10a276e`](https://github.com/pondahai/rp2040-retro-loader/commit/10a276e) | `db5228e` |
-| DOOM | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) | [`015a01d`](https://github.com/pondahai/rp2040-doom-ili9341/commit/015a01d) | 同 |
-| InfoNES | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) | [`b4b858e`](https://github.com/pondahai/rp2040-ili9341-infones/commit/b4b858e) | 同 |
-| PicoApple2 | [PicoApple2](https://github.com/pondahai/PicoApple2) | [`d8e78a0`](https://github.com/pondahai/PicoApple2/commit/d8e78a0) | `876b9be` |
-| SDR(2026-10-10) | [rp2040-retro-sdr](https://github.com/pondahai/rp2040-retro-sdr) | [`9f7e8c3`](https://github.com/pondahai/rp2040-retro-sdr/commit/9f7e8c3) | 新收 |
-| 字典(2026-08-25) | [rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) | [`9adf319`](https://github.com/pondahai/rp2040-retro-dict/commit/9adf319) | 新收 |
+| 載入器 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) | [`c481604`](https://github.com/pondahai/rp2040-retro-loader/commit/c481604) | `128b79a` |
+| 跳板 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) | [`10a276e`](https://github.com/pondahai/rp2040-retro-loader/commit/10a276e) | 同 |
+| DOOM | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) | [`015a01d`](https://github.com/pondahai/rp2040-doom-ili9341/commit/015a01d) | 同(未重編) |
+| InfoNES | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) | [`cbd200a`](https://github.com/pondahai/rp2040-ili9341-infones/commit/cbd200a) | `b4b858e` |
+| PicoApple2 | [PicoApple2](https://github.com/pondahai/PicoApple2) | [`1d61443`](https://github.com/pondahai/PicoApple2/commit/1d61443) | `d8e78a0` |
+| 字典 | [rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) | [`5b3f148`](https://github.com/pondahai/rp2040-retro-dict/commit/5b3f148) | `9adf319` |
+| SDR | [rp2040-retro-sdr](https://github.com/pondahai/rp2040-retro-sdr) | [`53bffe8`](https://github.com/pondahai/rp2040-retro-sdr/commit/53bffe8) | `9f7e8c3` |
+| SD 掛載工具 | [rp2040-retro-sdmount](https://github.com/pondahai/rp2040-retro-sdmount) | [`b6eb79d`](https://github.com/pondahai/rp2040-retro-sdmount/commit/b6eb79d) | 新收 |
 
 InfoNES 的工作區當時有未提交的 nvram / ramdisk 檔(`nvram_path.h`、
 `tools/nvram_save_test/`、`tools/ramdisk_fat12.h`),但都還沒被 build 引用,
@@ -271,21 +320,24 @@ InfoNES 的工作區當時有未提交的 nvram / ramdisk 檔(`nvram_path.h`、
 
 ---
 
-## 六、校驗碼(sha256 前 16 碼)
+## 六、校驗碼(sha256 前 16 碼,`v2026.11.14`)
 
 ```
-uf2/loader.uf2                    74b643f7be2be8ce
+uf2/loader.uf2                    cdd2da9809f14f83
 uf2/trampoline.uf2                19d1e132634b49f8
 uf2/DOOM.uf2                      0f86b7142a523c4b
-uf2/infoNES_standalone.uf2        6cea111ccc6c564a
-uf2/PicoApple2_standalone.uf2     1a1da3896ea8dee6
-uf2/RetroDict.ino.uf2             3ea5227878584827
-uf2/RetroDict_standalone.uf2      312f1894d1686348
-uf2/RetroSDR.ino.uf2              0a46ec36f0d80afa
-uf2/RetroSDR_standalone.uf2       a196d610f6142121
+uf2/infoNES_standalone.uf2        a3bb7deece3d0b8c
+uf2/PicoApple2_standalone.uf2     30f25c37fa54edaf
+uf2/RetroDict.ino.uf2             305a294a9492cbb3
+uf2/RetroDict_standalone.uf2      7e99f26bae962375
+uf2/RetroSDR.ino.uf2              0d8692448e755411
+uf2/RetroSDR_standalone.uf2       468b3ee3b74c6dde
+uf2/SDMOUNT.UF2                   e6b290bb1a512531
+uf2/SDMOUNT_standalone.uf2        6b629bb61530f645
 covers/DOOM.RAW                   c4e8be3cd258d37a
 covers/INFONES_STANDALONE.RAW     9f9d1fc3b15bdd16
 covers/PICOAPPLE2_STANDALONE.RAW  3f6c27d4fe5af0c3
-covers/RETRODICT.INO.RAW          2c1ca71602ced177
+covers/RETRODICT.INO.RAW          a192c13a051152cc
 covers/RETROSDR.INO.RAW           1160d8c23cdef6ff
+covers/SDMOUNT.RAW                a9990ea5c4e30549
 ```
