@@ -25,7 +25,7 @@ cover-sources/  封面的來源圖(要重新轉封面時才需要)
 
 ⚠️ **`uf2/` 沒有進版控。** 二進位檔每次重編都全變,塞進 git 只會讓歷史膨脹。
 成品掛在 [Releases](https://github.com/pondahai/rp2040-handheld-bundle/releases),
-十一個 uf2 是各自獨立的檔案(不是壓縮包),全部掛在最新的 `v2026.11.14b`,下載後放進 `uf2/` 即可,
+十三個 uf2 是各自獨立的檔案(不是壓縮包),全部掛在最新的 `v2026.11.14b`,下載後放進 `uf2/` 即可,
 校驗碼見第六節。
 
 ---
@@ -40,9 +40,7 @@ cover-sources/  封面的來源圖(要重新轉封面時才需要)
 4. 把**五個專題的 uf2**(`DOOM.uf2`、`infoNES.uf2`、`PicoApple2.ino.uf2`、
    `RetroDict.ino.uf2`、`RetroSDR.ino.uf2`)、**SD 掛載工具 `SDMOUNT.UF2`**,
    和 `covers/` 裡對應的 `.RAW` 全部複製到 SD 卡**根目錄**(不支援子資料夾)。字典還要多放一個
-   `/DICT/` 資料夾,見第二節。
-   ⚠️ 目前 Releases 裡 InfoNES 與 PicoApple2 只有 `infoNES_standalone.uf2` / `PicoApple2_standalone.uf2`,
-   複製到 SD 卡時請**改名**成 `infoNES.uf2` / `PicoApple2.ino.uf2`,才會配上封面(內容不用換,見第二節)
+   `/DICT/` 資料夾,見第二節
 5. 開機 → 圖形選單 → 左右選 → A 或 START 執行
 
 ### 之後加新 APP:不用再拔卡
@@ -94,8 +92,10 @@ SELECT 那項很重要:載入器的 USB 只有一個自訂的 HID 指令通道(�
 | `loader.uf2` | 28,160 B | **載入器主程式**。燒進板子,不是 SD 卡項目。2026-11-14 起選單期間有 USB 指令通道,`v2026.11.14b` 起可遠端啟動任一 APP | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
 | `trampoline.uf2` | 6,144 B | 跳板。已經包在下面三個遊戲裡,單獨留著是給重新 merge 用的 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
 | `DOOM.uf2` | 4,174,336 B | DOOM(韌體 + 1.7MB 地圖檔) | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) |
-| `infoNES_standalone.uf2` | 1,056,768 B | InfoNES(紅白機模擬器) | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) |
-| `PicoApple2_standalone.uf2` | 414,720 B | PicoApple2(Apple II 模擬器) | [PicoApple2](https://github.com/pondahai/PicoApple2) |
+| `infoNES.uf2` | 1,024,000 B | InfoNES(紅白機模擬器)。給選單用,不夾跳板 | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) |
+| `infoNES_standalone.uf2` | 1,056,768 B | InfoNES standalone,夾了跳板可直接 USB 燒 | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) |
+| `PicoApple2.ino.uf2` | 381,952 B | PicoApple2(Apple II 模擬器)。給選單用,不夾跳板 | [PicoApple2](https://github.com/pondahai/PicoApple2) |
+| `PicoApple2_standalone.uf2` | 414,720 B | PicoApple2 standalone,夾了跳板可直接 USB 燒 | [PicoApple2](https://github.com/pondahai/PicoApple2) |
 | `RetroDict.ino.uf2` | 437,248 B | 電子字典。給選單用,不夾跳板 | [rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) |
 | `RetroDict_standalone.uf2` | 470,016 B | 電子字典 standalone,夾了跳板可直接 USB 燒 | [rp2040-retro-dict](https://github.com/pondahai/rp2040-retro-dict) |
 | `RetroSDR.ino.uf2` | 273,920 B | LF 直接取樣 SDR 收音機(0–250 kHz)。給選單用,不夾跳板 | [rp2040-retro-sdr](https://github.com/pondahai/rp2040-retro-sdr) |
@@ -103,7 +103,7 @@ SELECT 那項很重要:載入器的 USB 只有一個自訂的 HID 指令通道(�
 | `SDMOUNT.UF2` | 84,480 B | **SD 掛載工具**:把 SD 卡變成 USB 隨身碟。給選單用,不夾跳板 | [rp2040-retro-sdmount](https://github.com/pondahai/rp2040-retro-sdmount) |
 | `SDMOUNT_standalone.uf2` | 117,248 B | SD 掛載工具 standalone,夾了跳板可直接 USB 燒 | [rp2040-retro-sdmount](https://github.com/pondahai/rp2040-retro-sdmount) |
 
-三個遊戲都是 **standalone 版**,意思是檔案最前面帶了跳板,所以**兩種用法都成立**:
+`_standalone` 版的檔案最前面帶了跳板,所以**兩種用法都成立**:
 
 1. **放 SD 卡** — 由選單載入。載入器會丟掉 `0x10004000` 以下的區塊(跳板),
    只寫本體
@@ -178,6 +178,12 @@ python tools/make_thumb.py doom_cover.jpg --fit --drop-bg --bg FFFFFF -o DOOM.RA
 ---
 
 ## 三、重編紀錄
+
+### 2026-11-14 補檔 — InfoNES、PicoApple2 補上選單版
+
+在 `v2026.11.14b` 補掛 `infoNES.uf2`(`b620436ddef501c2`)與 `PicoApple2.ino.uf2`(`265ce22fafbcee74`),
+SD 卡從此統一用選單版名字。兩個都是**未重編**的 `build_offset` 產物:拆開比對過,
+`0x10004000` 以上的本體與同 tag 的 `_standalone` 檔逐塊相同,只差前面的跳板。原有 11 個檔未動。
 
 ### 2026-11-14b — 載入器支援遠端啟動任一 APP
 
@@ -356,7 +362,9 @@ InfoNES 的工作區當時有未提交的 nvram / ramdisk 檔(`nvram_path.h`、
 uf2/loader.uf2                    0d1d23201103e04e
 uf2/trampoline.uf2                19d1e132634b49f8
 uf2/DOOM.uf2                      0f86b7142a523c4b
+uf2/infoNES.uf2                   b620436ddef501c2
 uf2/infoNES_standalone.uf2        a3bb7deece3d0b8c
+uf2/PicoApple2.ino.uf2            265ce22fafbcee74
 uf2/PicoApple2_standalone.uf2     30f25c37fa54edaf
 uf2/RetroDict.ino.uf2             305a294a9492cbb3
 uf2/RetroDict_standalone.uf2      7e99f26bae962375
