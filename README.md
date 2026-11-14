@@ -25,7 +25,7 @@ cover-sources/  封面的來源圖(要重新轉封面時才需要)
 
 ⚠️ **`uf2/` 沒有進版控。** 二進位檔每次重編都全變,塞進 git 只會讓歷史膨脹。
 成品掛在 [Releases](https://github.com/pondahai/rp2040-handheld-bundle/releases),
-十一個 uf2 是各自獨立的檔案(不是壓縮包),全部掛在最新的 `v2026.11.14`,下載後放進 `uf2/` 即可,
+十一個 uf2 是各自獨立的檔案(不是壓縮包),全部掛在最新的 `v2026.11.14b`,下載後放進 `uf2/` 即可,
 校驗碼見第六節。
 
 ---
@@ -54,6 +54,15 @@ python retro_sync.py push RetroFoo.uf2
 
 `retro_sync.py` 在 [rp2040-retro-sdmount](https://github.com/pondahai/rp2040-retro-sdmount) 的 `host/`。它會叫載入器啟動
 SDMOUNT、等 SD 卡以隨身碟出現、複製(同名 `.RAW` 封面一併帶上)、退出,再讓掌機回選單。
+要遠端啟動 SD 卡上的某個 APP(掌機同樣要停在選單):
+
+```bash
+python retro_sync.py run INFONES_STANDALONE     # 檔名不分大小寫,可省略 .UF2
+python retro_sync.py push RetroFoo.uf2 --run    # push 完直接啟動
+```
+
+`run` 需要 `v2026.11.14b` 起的 `loader.uf2`。
+
 也可以手動:選單選 SDMOUNT → 電腦上複製 → 退出磁碟 → 掌機按 START。
 
 ⚠️ `loader.uf2` 與 `trampoline.uf2` **不要**放進 SD 卡。它們是燒進板子的,
@@ -80,7 +89,7 @@ SELECT 那項很重要:載入器的 USB 只有一個自訂的 HID 指令通道(�
 
 | 檔案 | 大小 | 說明 | 來源 repo |
 |---|---|---|---|
-| `loader.uf2` | 27,648 B | **載入器主程式**。燒進板子,不是 SD 卡項目。2026-11-14 起選單期間有 USB 指令通道 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
+| `loader.uf2` | 28,160 B | **載入器主程式**。燒進板子,不是 SD 卡項目。2026-11-14 起選單期間有 USB 指令通道,`v2026.11.14b` 起可遠端啟動任一 APP | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
 | `trampoline.uf2` | 6,144 B | 跳板。已經包在下面三個遊戲裡,單獨留著是給重新 merge 用的 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
 | `DOOM.uf2` | 4,174,336 B | DOOM(韌體 + 1.7MB 地圖檔) | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) |
 | `infoNES_standalone.uf2` | 1,056,768 B | InfoNES(紅白機模擬器) | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) |
@@ -163,6 +172,21 @@ python tools/make_thumb.py doom_cover.jpg --fit --drop-bg --bg FFFFFF -o DOOM.RA
 ---
 
 ## 三、重編紀錄
+
+### 2026-11-14b — 載入器支援遠端啟動任一 APP
+
+新 tag **`v2026.11.14b`**,一樣掛齊全部 11 個 uf2。只有載入器換新,其餘 10 個與 `v2026.11.14`
+逐位元組相同(sha256 已比對)。
+
+| 檔案 | 這次動作 | 說明 |
+|---|---|---|
+| `loader.uf2` | **重編** | 跟進到 `f8070ce`。USB 指令通道新增 `'L'`:電腦指定檔名,載入器燒錄並執行 SD 卡上的那個 APP(`retro_sync.py run`)。協定版本 2,output report 加長為 32 byte。13,908 / 16,384 bytes (85%) |
+| 其餘 10 個 | 未動 | 同 `v2026.11.14` |
+
+搭配 [rp2040-retro-sdmount](https://github.com/pondahai/rp2040-retro-sdmount) `743cf1c` 起的 `retro_sync.py`;
+新版 `retro_sync.py` 對舊載入器的 `push` / `status` 仍相容,只有 `run` 需要新載入器。
+
+✅ **已上機驗證**:`run infones_standalone` 成功啟動、檔名不存在時回 `NONE`。
 
 ### 2026-11-14 — 整批重編、補收 SD 掛載工具
 
@@ -294,11 +318,11 @@ DOOM 從選單載入時要寫入約 1.97MB,**要等 30–45 秒**,畫面看起�
 
 ## 五、出處
 
-`v2026.11.14` 各檔案對應的 commit:
+`v2026.11.14b` 各檔案對應的 commit:
 
 | 專題 | Repo | Commit | 上一版 |
 |---|---|---|---|
-| 載入器 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) | [`c481604`](https://github.com/pondahai/rp2040-retro-loader/commit/c481604) | `128b79a` |
+| 載入器 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) | [`f8070ce`](https://github.com/pondahai/rp2040-retro-loader/commit/f8070ce) | `c481604` |
 | 跳板 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) | [`10a276e`](https://github.com/pondahai/rp2040-retro-loader/commit/10a276e) | 同 |
 | DOOM | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) | [`015a01d`](https://github.com/pondahai/rp2040-doom-ili9341/commit/015a01d) | 同(未重編) |
 | InfoNES | [rp2040-ili9341-infones](https://github.com/pondahai/rp2040-ili9341-infones) | [`cbd200a`](https://github.com/pondahai/rp2040-ili9341-infones/commit/cbd200a) | `b4b858e` |
@@ -320,10 +344,10 @@ InfoNES 的工作區當時有未提交的 nvram / ramdisk 檔(`nvram_path.h`、
 
 ---
 
-## 六、校驗碼(sha256 前 16 碼,`v2026.11.14`)
+## 六、校驗碼(sha256 前 16 碼,`v2026.11.14b`)
 
 ```
-uf2/loader.uf2                    cdd2da9809f14f83
+uf2/loader.uf2                    0d1d23201103e04e
 uf2/trampoline.uf2                19d1e132634b49f8
 uf2/DOOM.uf2                      0f86b7142a523c4b
 uf2/infoNES_standalone.uf2        a3bb7deece3d0b8c
