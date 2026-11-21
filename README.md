@@ -34,6 +34,8 @@ cover-sources/  封面的來源圖(要重新轉封面時才需要)
 
 ### 第一次設定機器
 
+![first_install.uf2 方塊圖與單次 BOOTSEL 安裝流程](docs/first_install_flow.svg)
+
 #### 方式 A：免拔卡、免讀卡機（推薦，只需進 1 次 BOOTSEL）
 
 1. 插好已格式化成 FAT16 或 FAT32 的 SD 卡，板子進 BOOTSEL（按住 `BOOTSEL` 插上 USB），掛成 `RPI-RP2`

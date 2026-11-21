@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 540" width="1040" height="540" role="img" aria-label="RP2040 Retro Handheld first_install.uf2 方塊圖與首次安裝流程">
+  <defs>
+    <style>
+      .font-sans { font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif; }
+      .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .title { font-size: 20px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-size: 13px; fill: #475569; }
+      .sec-title { font-size: 14px; font-weight: 700; fill: #1e293b; letter-spacing: 0.3px; }
+      .box-title { font-size: 14px; font-weight: 700; }
+      .box-sub { font-size: 12px; }
+      .addr { font-size: 11.5px; font-weight: 600; fill: #334155; }
+      .step-num { font-size: 12px; font-weight: 700; fill: #ffffff; }
+      .step-title { font-size: 13.5px; font-weight: 700; fill: #0f172a; }
+      .step-body { font-size: 12px; fill: #334155; }
+      .badge-text { font-size: 11px; font-weight: 600; }
+      .arrow-label { font-size: 11px; font-weight: 600; fill: #475569; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#059669"/>
+    </marker>
+    <filter id="shadow" x="-4%" y="-6%" width="108%" height="116%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.06"/>
+    </filter>
+  </defs>
+
+  <!-- Outer Canvas -->
+  <rect x="0" y="0" width="1040" height="540" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+
+  <!-- Header -->
+  <text x="32" y="40" class="font-sans title">RP2040 掌機 — first_install.uf2 方塊圖與單次 BOOTSEL 安裝流程</text>
+  <text x="32" y="62" class="font-sans subtitle">零改碼合併 loader.uf2 + SDMOUNT.UF2，利用軟重置穿透與跨重置訊息，免讀卡機、只需進 1 次 BOOTSEL 完成設定</text>
+
+  <!-- ===================================================================== -->
+  <!-- SECTION 1: BLOCK DIAGRAM (FLASH LAYOUT)                               -->
+  <!-- ===================================================================== -->
+  <rect x="28" y="80" width="984" height="172" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="46" y="106" class="font-sans sec-title">一、Flash 映像方塊圖（first_install.uf2，共 229 blocks / 117,248 bytes）</text>
+
+  <!-- Merge badge -->
+  <rect x="752" y="89" width="244" height="24" rx="12" fill="#e0f2fe" stroke="#7dd3fc" stroke-width="1"/>
+  <text x="874" y="105" text-anchor="middle" class="font-mono badge-text" fill="#0369a1">merge_uf2.py loader.uf2 SDMOUNT.UF2</text>
+
+  <!-- Address ticks -->
+  <text x="48" y="135" class="font-mono addr">0x10000000</text>
+  <text x="348" y="135" class="font-mono addr">0x10003700</text>
+  <text x="528" y="135" class="font-mono addr">0x10004000 (APP_BASE)</text>
+  <text x="915" y="135" class="font-mono addr">0x1000E500</text>
+
+  <!-- Block 1: loader.uf2 -->
+  <rect x="48" y="144" width="296" height="66" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="196" y="169" text-anchor="middle" class="font-sans box-title" fill="#1e3a8a">loader.uf2（開機載入器）</text>
+  <text x="196" y="188" text-anchor="middle" class="font-mono box-sub" fill="#1d4ed8">55 blocks · 13,908 B · 含 boot2</text>
+  <text x="196" y="203" text-anchor="middle" class="font-sans badge-text" fill="#3b82f6">開機選單 + 軟重置穿透 + USB HID 通道</text>
+
+  <!-- Block 2: 0xFF padding -->
+  <rect x="350" y="144" width="174" height="66" rx="8" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <text x="437" y="169" text-anchor="middle" class="font-sans box-title" fill="#475569">0xFF 連續填充</text>
+  <text x="437" y="188" text-anchor="middle" class="font-mono box-sub" fill="#64748b">9 blocks · 2,304 B</text>
+  <text x="437" y="203" text-anchor="middle" class="font-sans badge-text" fill="#64748b">避免拖曳 RPI-RP2 截斷</text>
+
+  <!-- Block 3: SDMOUNT.UF2 -->
+  <rect x="530" y="144" width="462" height="66" rx="8" fill="#d1fae5" stroke="#059669" stroke-width="1.8" filter="url(#shadow)"/>
+  <text x="761" y="169" text-anchor="middle" class="font-sans box-title" fill="#065f46">SDMOUNT.UF2（SD 掛載工具，無 boot2）</text>
+  <text x="761" y="188" text-anchor="middle" class="font-mono box-sub" fill="#047857">165 blocks · 42,044 B · 向量表直接位於 0x10004000</text>
+  <text x="761" y="203" text-anchor="middle" class="font-sans badge-text" fill="#059669">USB 隨身碟 (MSC) + 序列埠控制 (CDC) + 回選單訊號</text>
+
+  <!-- Region brackets below -->
+  <line x1="48" y1="222" x2="524" y2="222" stroke="#2563eb" stroke-width="1.5"/>
+  <line x1="48" y1="217" x2="48" y2="227" stroke="#2563eb" stroke-width="1.5"/>
+  <line x1="524" y1="217" x2="524" y2="227" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="286" y="239" text-anchor="middle" class="font-sans badge-text" fill="#1d4ed8">BOOT 保留區（16 KB，永久保留載入器）</text>
+
+  <line x1="530" y1="222" x2="992" y2="222" stroke="#059669" stroke-width="1.5"/>
+  <line x1="530" y1="217" x2="530" y2="227" stroke="#059669" stroke-width="1.5"/>
+  <line x1="992" y1="217" x2="992" y2="227" stroke="#059669" stroke-width="1.5"/>
+  <text x="761" y="239" text-anchor="middle" class="font-sans badge-text" fill="#047857">APP 區（首次預載 SDMOUNT，日後由選單動態覆寫其他遊戲／工具）</text>
+
+  <!-- ===================================================================== -->
+  <!-- SECTION 2: INSTALLATION FLOWCHART                                     -->
+  <!-- ===================================================================== -->
+  <rect x="28" y="268" width="984" height="248" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="46" y="294" class="font-sans sec-title">二、單次 BOOTSEL 首次安裝流程（免拔卡、免讀卡機）</text>
+
+  <!-- Step 1 -->
+  <rect x="46" y="312" width="212" height="156" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="46" y="312" width="212" height="32" rx="10" fill="#334155"/>
+  <rect x="46" y="332" width="212" height="12" fill="#334155"/>
+  <circle cx="64" cy="328" r="10" fill="#0ea5e9"/>
+  <text x="64" y="332" text-anchor="middle" class="font-sans step-num">1</text>
+  <text x="82" y="333" class="font-sans step-num">唯一一次 BOOTSEL</text>
+
+  <text x="58" y="366" class="font-sans step-title">拖入 first_install.uf2</text>
+  <text x="58" y="387" class="font-sans step-body">• SD 卡插好（FAT16/32）</text>
+  <text x="58" y="405" class="font-sans step-body">• 按住 BOOTSEL 插 USB</text>
+  <text x="58" y="423" class="font-sans step-body">• 拖入 RPI-RP2 磁碟</text>
+  <rect x="58" y="436" width="188" height="22" rx="5" fill="#f1f5f9"/>
+  <text x="152" y="451" text-anchor="middle" class="font-mono badge-text" fill="#475569">寫完 → Bootrom 軟重置</text>
+
+  <!-- Arrow 1 -> 2 -->
+  <line x1="258" y1="390" x2="290" y2="390" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <text x="274" y="381" text-anchor="middle" class="font-mono arrow-label" fill="#2563eb">WDG</text>
+
+  <!-- Step 2 -->
+  <rect x="294" y="312" width="212" height="156" rx="10" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="294" y="312" width="212" height="32" rx="10" fill="#2563eb"/>
+  <rect x="294" y="332" width="212" height="12" fill="#2563eb"/>
+  <circle cx="312" cy="328" r="10" fill="#1e3a8a"/>
+  <text x="312" y="332" text-anchor="middle" class="font-sans step-num">2</text>
+  <text x="330" y="333" class="font-sans step-num">載入器自動穿透</text>
+
+  <text x="306" y="366" class="font-sans step-title">無聲交棒給 SDMOUNT</text>
+  <text x="306" y="387" class="font-mono step-body">watchdog_hw-&gt;reason ≠ 0</text>
+  <text x="306" y="405" class="font-mono step-body">app_present() == true</text>
+  <text x="306" y="423" class="font-sans step-body">→ 跳過選單直接 launch</text>
+  <rect x="306" y="436" width="188" height="22" rx="5" fill="#dbeafe"/>
+  <text x="400" y="451" text-anchor="middle" class="font-mono badge-text" fill="#1d4ed8">跳轉至 0x10004000</text>
+
+  <!-- Arrow 2 -> 3 -->
+  <line x1="506" y1="390" x2="538" y2="390" stroke="#059669" stroke-width="2" marker-end="url(#arrow-green)"/>
+
+  <!-- Step 3 -->
+  <rect x="542" y="312" width="212" height="156" rx="10" fill="#ffffff" stroke="#6ee7b7" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="542" y="312" width="212" height="32" rx="10" fill="#059669"/>
+  <rect x="542" y="332" width="212" height="12" fill="#059669"/>
+  <circle cx="560" cy="328" r="10" fill="#065f46"/>
+  <text x="560" y="332" text-anchor="middle" class="font-sans step-num">3</text>
+  <text x="578" y="333" class="font-sans step-num">SD 卡掛載並寫入</text>
+
+  <text x="554" y="366" class="font-sans step-title">電腦寫入 APP 與封面</text>
+  <text x="554" y="387" class="font-sans step-body">• SD 卡自動出現為隨身碟</text>
+  <text x="554" y="405" class="font-sans step-body">• 放入 SDMOUNT.UF2 + APP</text>
+  <text x="554" y="423" class="font-sans step-body">• 放入同名 .RAW 封面</text>
+  <rect x="554" y="436" width="188" height="22" rx="5" fill="#d1fae5"/>
+  <text x="648" y="451" text-anchor="middle" class="font-mono badge-text" fill="#047857">或一行 retro_sync.py push</text>
+
+  <!-- Arrow 3 -> 4 -->
+  <line x1="754" y1="390" x2="786" y2="390" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 4 -->
+  <rect x="790" y="312" width="204" height="156" rx="10" fill="#ffffff" stroke="#fcd34d" stroke-width="1.8" filter="url(#shadow)"/>
+  <rect x="790" y="312" width="204" height="32" rx="10" fill="#d97706"/>
+  <rect x="790" y="332" width="204" height="12" fill="#d97706"/>
+  <circle cx="808" cy="328" r="10" fill="#92400e"/>
+  <text x="808" y="332" text-anchor="middle" class="font-sans step-num">4</text>
+  <text x="826" y="333" class="font-sans step-num">直接進入圖形選單</text>
+
+  <text x="802" y="366" class="font-sans step-title">退出並回選單（完成！）</text>
+  <text x="802" y="387" class="font-sans step-body">• 退出磁碟 → START / done</text>
+  <text x="802" y="405" class="font-mono step-body">• RETRO_MSG_SHOW_MENU</text>
+  <text x="802" y="423" class="font-sans step-body">• loader 已就位 → 顯示封面</text>
+  <rect x="802" y="436" width="180" height="22" rx="5" fill="#fef3c7"/>
+  <text x="892" y="451" text-anchor="middle" class="font-sans badge-text" fill="#b45309">日後免拔卡 · retro_sync.py</text>
+
+  <!-- Bottom summary bar -->
+  <rect x="46" y="480" width="948" height="24" rx="6" fill="#eef2ff" stroke="#c7d2fe" stroke-width="1"/>
+  <text x="520" y="496" text-anchor="middle" class="font-sans badge-text" fill="#3730a3">★ 關鍵：使用者只需拖一次 first_install.uf2，不需要第二次 BOOTSEL、不需要實體讀卡機，之後全程由載入器 USB 通道與 SDMOUNT 接手</text>
+</svg>
