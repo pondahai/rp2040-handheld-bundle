@@ -34,14 +34,20 @@ cover-sources/  封面的來源圖(要重新轉封面時才需要)
 
 ### 第一次設定機器
 
-1. 板子進 BOOTSEL(拔電 → 按住 BOOTSEL → 插電),掛成 `RPI-RP2`
-2. 把 `uf2/loader.uf2` 拖進去 — **這一步只要做一次**
-3. SD 卡格式化成 FAT16 或 FAT32
-4. 把**五個專題的 uf2**(`DOOM.uf2`、`infoNES.uf2`、`PicoApple2.ino.uf2`、
-   `RetroDict.ino.uf2`、`RetroSDR.ino.uf2`)、**SD 掛載工具 `SDMOUNT.UF2`**,
-   和 `covers/` 裡對應的 `.RAW` 全部複製到 SD 卡**根目錄**(不支援子資料夾)。字典還要多放一個
-   `/DICT/` 資料夾,見第二節
-5. 開機 → 圖形選單 → 左右選 → A 或 START 執行
+#### 方式 A：免拔卡、免讀卡機（推薦，只需進 1 次 BOOTSEL）
+
+1. 插好已格式化成 FAT16 或 FAT32 的 SD 卡，板子進 BOOTSEL（按住 `BOOTSEL` 插上 USB），掛成 `RPI-RP2`
+2. 把 `uf2/first_install.uf2`（`loader.uf2` + `SDMOUNT.UF2` 合併版）拖進去 — **這一步只要做一次**。
+   掌機重開後會因為軟重置自動穿透進 SDMOUNT，直接把 SD 卡掛成電腦上的隨身碟
+3. 把**五個專題的 uf2**（`DOOM.uf2`、`infoNES.uf2`、`PicoApple2.ino.uf2`、
+   `RetroDict.ino.uf2`、`RetroSDR.ino.uf2`）、**SD 掛載工具 `SDMOUNT.UF2`**，
+   和 `covers/` 裡對應的 `.RAW` 全部複製到 SD 卡**根目錄**（不支援子資料夾），然後在電腦上**安全退出**該磁碟。字典還要多放一個 `/DICT/` 資料夾，見第二節
+4. 在掌機按 **START**（或電腦執行 `python retro_sync.py finish`）結束掛載 → 自動進入載入器圖形選單 → 左右選 → A 或 START 執行
+
+#### 方式 B：使用讀卡機
+
+1. SD 卡格式化成 FAT16 或 FAT32，直接用讀卡機將上述選單版 `.uf2`、`SDMOUNT.UF2` 與對應 `.RAW` 封面複製到根目錄
+2. 板子進一次 BOOTSEL 掛成 `RPI-RP2`，把 `uf2/loader.uf2` 拖進去即可開機進選單
 
 ### 之後加新 APP:不用再拔卡
 
@@ -89,6 +95,7 @@ SELECT 那項很重要:載入器的 USB 只有一個自訂的 HID 指令通道(�
 
 | 檔案 | 大小 | 說明 | 來源 repo |
 |---|---|---|---|
+| `first_install.uf2` | 117,248 B | **首次安裝合一版**（`loader.uf2` + `SDMOUNT.UF2`）。燒進板子一次到位，開機自動掛載 SD 卡，退出後直接進選單。不要放 SD 卡 | 由 `merge_uf2.py` 合併產出 |
 | `loader.uf2` | 28,160 B | **載入器主程式**。燒進板子,不是 SD 卡項目。2026-11-14 起選單期間有 USB 指令通道,`v2026.11.14b` 起可遠端啟動任一 APP | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
 | `trampoline.uf2` | 6,144 B | 跳板。已經包在下面三個遊戲裡,單獨留著是給重新 merge 用的 | [rp2040-retro-loader](https://github.com/pondahai/rp2040-retro-loader) |
 | `DOOM.uf2` | 4,174,336 B | DOOM(韌體 + 1.7MB 地圖檔) | [rp2040-doom-ili9341](https://github.com/pondahai/rp2040-doom-ili9341) |
@@ -178,6 +185,24 @@ python tools/make_thumb.py doom_cover.jpg --fit --drop-bg --bg FFFFFF -o DOOM.RA
 ---
 
 ## 三、重編紀錄
+
+### 2026-11-21 — 新增 `first_install.uf2`（單次 BOOTSEL 免拔卡首次安裝）
+
+原本首次設定新機（SD 卡還沒放 `SDMOUNT.UF2`）如果沒有讀卡機，得進兩次 BOOTSEL：先燒 `SDMOUNT_standalone.uf2` 掛載 SD 卡寫檔，再進一次 BOOTSEL 燒回 `loader.uf2`。
+
+利用現有設計零改碼即可簡化成 **1 次 BOOTSEL**：直接用 `merge_uf2.py` 把 `loader.uf2`（`0x10000000`）與 `SDMOUNT.UF2`（`0x10004000`）合併成 `first_install.uf2`（中間以 `0xFF` 補齊空隙）：
+
+```bash
+python ../rp2040-retro-loader/tools/merge_uf2.py \
+  ../rp2040-retro-loader/build_official/loader.uf2 \
+  ../rp2040-retro-sdmount/build_bundle/SDMOUNT.UF2 \
+  -o uf2/first_install.uf2
+```
+
+原理是三個既有機制剛好串成一條鏈：
+1. 拖進 `RPI-RP2` 後，RP2040 bootrom 觸發的是軟重置（`watchdog_hw->reason != 0`）。
+2. `loader.uf2` 看到軟重置且 `0x10004000` 有合法映像，會直接穿透啟動 `SDMOUNT`，立刻把 SD 卡掛成隨身碟。
+3. 寫完檔案退出、按 START 或送 `done` 後，`SDMOUNT` 帶著 `RETRO_MSG_SHOW_MENU` 重啟，而 `loader.uf2` 本來就在前 16KB，直接進圖形選單。
 
 ### 2026-11-14 補檔 — InfoNES、PicoApple2 補上選單版
 
@@ -359,6 +384,7 @@ InfoNES 的工作區當時有未提交的 nvram / ramdisk 檔(`nvram_path.h`、
 ## 六、校驗碼(sha256 前 16 碼,`v2026.11.14b`)
 
 ```
+uf2/first_install.uf2             fc7bb794bdcef79c
 uf2/loader.uf2                    0d1d23201103e04e
 uf2/trampoline.uf2                19d1e132634b49f8
 uf2/DOOM.uf2                      0f86b7142a523c4b
